@@ -8,503 +8,117 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
-
   :root {
-    --bg: #0a0c0f;
-    --surface: #111418;
-    --surface2: #181d23;
-    --border: #1e252e;
-    --border2: #2a3340;
-    --text: #e2e8f0;
-    --text-dim: #64748b;
-    --text-muted: #374151;
-    --accent: #00d4ff;
-    --accent2: #ff6b35;
-    --accent3: #a3e635;
-    --accent4: #c084fc;
-    --red: #f87171;
-    --green: #34d399;
-    --yellow: #fbbf24;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── UPLOAD SCREEN ── */
-  #upload-screen {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    background: var(--bg);
-    position: relative;
-  }
-
-  .grid-bg {
-    position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background-image:
-      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-
-  .upload-hero {
-    position: relative; z-index: 1; text-align: center; max-width: 600px;
-  }
-
-  .logo-mark {
-    width: 64px; height: 64px; margin: 0 auto 2rem;
-    border: 2px solid var(--accent);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 1.4rem; font-weight: 600;
-    color: var(--accent); letter-spacing: -2px;
-    box-shadow: 0 0 30px rgba(0,212,255,0.2), inset 0 0 30px rgba(0,212,255,0.05);
-    animation: pulse-glow 3s ease-in-out infinite;
-  }
-
-  @keyframes pulse-glow {
-    0%,100% { box-shadow: 0 0 30px rgba(0,212,255,0.2), inset 0 0 30px rgba(0,212,255,0.05); }
-    50% { box-shadow: 0 0 60px rgba(0,212,255,0.4), inset 0 0 40px rgba(0,212,255,0.1); }
-  }
-
-  .upload-title {
-    font-family: var(--mono); font-size: 2rem; font-weight: 300;
-    letter-spacing: -1px; margin-bottom: 0.5rem;
-    color: var(--text);
-  }
-
-  .upload-title span { color: var(--accent); }
-
-  .upload-sub {
-    color: var(--text-dim); font-size: 0.9rem; margin-bottom: 3rem;
-    font-family: var(--mono);
-  }
-
-  .drop-zone {
-    border: 2px dashed var(--border2);
-    border-radius: 4px;
-    padding: 3rem 2rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: var(--surface);
-    position: relative; overflow: hidden;
-  }
-
-  .drop-zone:hover, .drop-zone.drag-over {
-    border-color: var(--accent);
-    background: rgba(0,212,255,0.04);
-  }
-
-  .drop-zone-icon {
-    font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4;
-  }
-
-  .drop-zone p {
-    font-family: var(--mono); font-size: 0.85rem; color: var(--text-dim);
-  }
-
-  .drop-zone p strong { color: var(--accent); }
-
-  .file-types {
-    display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;
-  }
-
-  .file-tag {
-    font-family: var(--mono); font-size: 0.7rem; padding: 2px 8px;
-    border: 1px solid var(--border2); color: var(--text-dim);
-    border-radius: 2px;
-  }
-
-  #file-input { display: none; }
-
-  /* ── DASHBOARD ── */
-  #dashboard { display: none; }
-
-  .topbar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    height: 56px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-  }
-
-  .topbar-left {
-    display: flex; align-items: center; gap: 1rem;
-  }
-
-  .topbar-logo {
-    font-family: var(--mono); font-size: 0.85rem; font-weight: 600;
-    color: var(--accent); letter-spacing: 2px;
-  }
-
-  .topbar-sep { width: 1px; height: 20px; background: var(--border2); }
-
-  .topbar-title {
-    font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
-  }
-
-  .topbar-right {
-    display: flex; align-items: center; gap: 1rem;
-  }
-
-  .status-pill {
-    display: flex; align-items: center; gap: 0.4rem;
-    font-family: var(--mono); font-size: 0.7rem; color: var(--green);
-    padding: 4px 10px; border: 1px solid rgba(52,211,153,0.3);
-    border-radius: 2px; background: rgba(52,211,153,0.05);
-  }
-
-  .status-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--green);
-    animation: blink 2s ease-in-out infinite;
-  }
-
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  .btn-new {
-    font-family: var(--mono); font-size: 0.75rem;
-    padding: 6px 14px; border: 1px solid var(--border2);
-    background: transparent; color: var(--text-dim); cursor: pointer;
-    transition: all 0.2s; border-radius: 2px;
-  }
-  .btn-new:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* ── LAYOUT ── */
-  .content { padding: 2rem; max-width: 1600px; margin: 0 auto; }
-
-  /* ── HEADER INFO ── */
-  .report-header {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2rem;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-  }
-
-  .report-id {
-    font-family: var(--mono); font-size: 1.6rem; font-weight: 300;
-    color: var(--text); letter-spacing: -1px;
-  }
-
-  .report-id span { color: var(--accent); }
-
-  .report-meta {
-    display: flex; gap: 2rem; margin-top: 0.75rem; flex-wrap: wrap;
-  }
-
-  .meta-item {
-    display: flex; flex-direction: column; gap: 2px;
-  }
-
-  .meta-label {
-    font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 1px;
-  }
-
-  .meta-value {
-    font-family: var(--mono); font-size: 0.82rem; color: var(--text-dim);
-  }
-
-  .test-conditions {
-    display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;
-  }
-
-  .condition-row {
-    display: flex; gap: 0.5rem; align-items: center;
-  }
-
-  .cond-label {
-    font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted);
-    width: 100px; text-align: right;
-  }
-
-  .cond-value {
-    font-family: var(--mono); font-size: 0.82rem; color: var(--accent);
-    min-width: 80px; text-align: right;
-  }
-
-  /* ── KPI GRID ── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-bottom: 2rem;
-  }
-
-  .kpi-card {
-    background: var(--surface);
-    padding: 1.2rem 1rem;
-    display: flex; flex-direction: column; gap: 0.4rem;
-    transition: background 0.2s;
-  }
-
-  .kpi-card:hover { background: var(--surface2); }
-
-  .kpi-label {
-    font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 1px;
-  }
-
-  .kpi-value {
-    font-family: var(--mono); font-size: 1.6rem; font-weight: 500;
-    line-height: 1; letter-spacing: -1px;
-  }
-
-  .kpi-unit {
-    font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
-  }
-
-  .kpi-accent { color: var(--accent); }
-  .kpi-accent2 { color: var(--accent2); }
-  .kpi-accent3 { color: var(--accent3); }
-  .kpi-accent4 { color: var(--accent4); }
-  .kpi-red { color: var(--red); }
-  .kpi-yellow { color: var(--yellow); }
-
-  /* ── CHARTS GRID ── */
-  .charts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .chart-full { grid-column: 1 / -1; }
-
-  .chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 1.5rem;
-  }
-
-  .chart-title {
-    font-family: var(--mono); font-size: 0.75rem;
-    color: var(--text-dim); letter-spacing: 1px;
-    text-transform: uppercase; margin-bottom: 1.2rem;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-
-  .chart-title-accent {
-    width: 20px; height: 2px; background: var(--accent);
-    display: inline-block; margin-right: 8px;
-    vertical-align: middle;
-  }
-
-  .chart-wrap {
-    position: relative; height: 260px;
-  }
-
-  .chart-wrap-tall {
-    position: relative; height: 320px;
-  }
-
-  /* ── PULSATION TABLE ── */
-  .data-section { margin-bottom: 1rem; }
-
-  .section-title {
-    font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 2px;
-    padding: 0.6rem 0; margin-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .puls-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  table.data-table {
-    width: 100%; border-collapse: collapse;
-    font-family: var(--mono); font-size: 0.75rem;
-  }
-
-  table.data-table th {
-    text-align: left; padding: 6px 10px;
-    background: var(--surface2); color: var(--text-muted);
-    font-weight: 500; border-bottom: 1px solid var(--border);
-    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px;
-  }
-
-  table.data-table td {
-    padding: 5px 10px; border-bottom: 1px solid var(--border);
-    color: var(--text-dim);
-  }
-
-  table.data-table tr:last-child td { border-bottom: none; }
-
-  table.data-table td.val { color: var(--text); text-align: right; }
-  table.data-table td.highlight { color: var(--accent); font-weight: 500; }
-
-  /* ── NOISE TABLE ── */
-  .noise-wrap {
-    overflow-x: auto;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 1.5rem;
-  }
-
-  /* ── COMPARE TABLE ── */
-  .compare-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .compare-table {
-    width: 100%; border-collapse: collapse;
-    font-family: var(--mono); font-size: 0.78rem;
-  }
-
-  .compare-table th {
-    background: var(--surface2); color: var(--text-muted);
-    padding: 8px 12px; font-size: 0.65rem; text-transform: uppercase;
-    letter-spacing: 1px; border-bottom: 1px solid var(--border);
-    text-align: left; white-space: nowrap;
-  }
-
-  .compare-table td {
-    padding: 7px 12px; border-bottom: 1px solid var(--border);
-    color: var(--text-dim); white-space: nowrap;
-  }
-
-  .compare-table tr:hover td { background: var(--surface2); }
-
-  .badge {
-    font-size: 0.65rem; padding: 2px 6px; border-radius: 2px;
-    font-weight: 500;
-  }
-
-  .badge-ok { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
-  .badge-warn { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
-
-  /* ── FOOTER ── */
-  .report-footer {
-    margin-top: 2rem; padding: 1rem;
-    border-top: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-
-  .footer-text {
-    font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted);
-  }
-
-  /* ── MULTI-FILE COMPARE ── */
-  .compare-files-bar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent4);
-    padding: 1rem 1.5rem;
-    margin-bottom: 1rem;
-    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-  }
-
-  .compare-label {
-    font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;
-  }
-
-  .file-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; flex: 1; }
-
-  .file-chip {
-    font-family: var(--mono); font-size: 0.7rem;
-    padding: 3px 10px; border-radius: 2px;
-    border: 1px solid var(--border2); color: var(--text-dim);
-    display: flex; align-items: center; gap: 0.4rem;
-  }
-
-  .file-chip.active { border-color: var(--accent4); color: var(--accent4); background: rgba(192,132,252,0.05); }
-
-  .chip-dot { width: 6px; height: 6px; border-radius: 50%; }
-
-  .add-file-btn {
-    font-family: var(--mono); font-size: 0.72rem;
-    padding: 5px 14px; border: 1px dashed var(--border2);
-    background: transparent; color: var(--text-muted); cursor: pointer;
-    transition: all 0.2s; border-radius: 2px; white-space: nowrap;
-  }
-  .add-file-btn:hover { border-color: var(--accent4); color: var(--accent4); }
-
-  /* Tooltip */
-  .tooltip { position: relative; }
-  .tooltip:hover::after {
-    content: attr(data-tip);
-    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-    background: var(--surface2); border: 1px solid var(--border2);
-    color: var(--text); font-family: var(--mono); font-size: 0.65rem;
-    padding: 4px 8px; white-space: nowrap; z-index: 200;
-    pointer-events: none; margin-bottom: 4px;
-  }
-
-  /* Loading */
-  .loading {
-    display: flex; align-items: center; justify-content: center;
-    gap: 0.5rem; padding: 3rem;
-    font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
-  }
-
-  .spinner {
-    width: 16px; height: 16px; border: 2px solid var(--border2);
-    border-top-color: var(--accent); border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
-  /* Responsive */
-  @media (max-width: 1100px) {
-    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
-    .charts-grid { grid-template-columns: 1fr; }
-    .chart-full { grid-column: 1; }
-    .puls-grid { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 600px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .report-header { grid-template-columns: 1fr; }
-  }
+    --bg:#0a0c0f; --surface:#111418; --surface2:#181d23;
+    --border:#1e252e; --border2:#2a3340;
+    --text:#e2e8f0; --text-dim:#64748b; --text-muted:#374151;
+    --accent:#00d4ff; --accent2:#ff6b35; --accent3:#a3e635;
+    --accent4:#c084fc; --red:#f87171; --green:#34d399; --yellow:#fbbf24;
+    --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+  .grid-bg{position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);
+    background-size:40px 40px;}
+  #upload-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;position:relative;}
+  .upload-hero{position:relative;z-index:1;text-align:center;max-width:600px;}
+  .logo-mark{width:64px;height:64px;margin:0 auto 2rem;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:1.4rem;font-weight:600;color:var(--accent);box-shadow:0 0 30px rgba(0,212,255,.2);animation:pg 3s ease-in-out infinite;}
+  @keyframes pg{0%,100%{box-shadow:0 0 30px rgba(0,212,255,.2)}50%{box-shadow:0 0 60px rgba(0,212,255,.4)}}
+  .upload-title{font-family:var(--mono);font-size:2rem;font-weight:300;letter-spacing:-1px;margin-bottom:.5rem;}
+  .upload-title span{color:var(--accent);}
+  .upload-sub{color:var(--text-dim);font-size:.9rem;margin-bottom:3rem;font-family:var(--mono);}
+  .drop-zone{border:2px dashed var(--border2);border-radius:4px;padding:3rem 2rem;cursor:pointer;transition:all .3s;background:var(--surface);}
+  .drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:rgba(0,212,255,.04);}
+  .drop-zone-icon{font-size:2.5rem;margin-bottom:1rem;opacity:.4;}
+  .drop-zone p{font-family:var(--mono);font-size:.85rem;color:var(--text-dim);}
+  .drop-zone p strong{color:var(--accent);}
+  .file-types{display:flex;gap:.5rem;justify-content:center;margin-top:1rem;}
+  .file-tag{font-family:var(--mono);font-size:.7rem;padding:2px 8px;border:1px solid var(--border2);color:var(--text-dim);border-radius:2px;}
+  #file-input{display:none;}
+  #dashboard{display:none;}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .topbar-logo{font-family:var(--mono);font-size:.85rem;font-weight:600;color:var(--accent);letter-spacing:2px;}
+  .topbar-sep{width:1px;height:20px;background:var(--border2);}
+  .topbar-title{font-family:var(--mono);font-size:.8rem;color:var(--text-dim);}
+  .topbar-right{display:flex;align-items:center;gap:1rem;}
+  .status-pill{display:flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.7rem;color:var(--green);padding:4px 10px;border:1px solid rgba(52,211,153,.3);border-radius:2px;background:rgba(52,211,153,.05);}
+  .status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .btn-new{font-family:var(--mono);font-size:.75rem;padding:6px 14px;border:1px solid var(--border2);background:transparent;color:var(--text-dim);cursor:pointer;transition:all .2s;border-radius:2px;}
+  .btn-new:hover{border-color:var(--accent);color:var(--accent);}
+  .content{padding:2rem;max-width:1600px;margin:0 auto;}
+  .report-header{display:grid;grid-template-columns:1fr auto;gap:2rem;margin-bottom:2rem;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);}
+  .report-id{font-family:var(--mono);font-size:1.6rem;font-weight:300;letter-spacing:-1px;}
+  .report-id span{color:var(--accent);}
+  .report-meta{display:flex;gap:2rem;margin-top:.75rem;flex-wrap:wrap;}
+  .meta-item{display:flex;flex-direction:column;gap:2px;}
+  .meta-label{font-family:var(--mono);font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
+  .meta-value{font-family:var(--mono);font-size:.82rem;color:var(--text-dim);}
+  .test-conditions{display:flex;flex-direction:column;gap:.5rem;align-items:flex-end;}
+  .condition-row{display:flex;gap:.5rem;align-items:center;}
+  .cond-label{font-family:var(--mono);font-size:.7rem;color:var(--text-muted);width:110px;text-align:right;}
+  .cond-value{font-family:var(--mono);font-size:.82rem;color:var(--accent);min-width:90px;text-align:right;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:2rem;}
+  .kpi-card{background:var(--surface);padding:1.2rem 1rem;display:flex;flex-direction:column;gap:.4rem;transition:background .2s;}
+  .kpi-card:hover{background:var(--surface2);}
+  .kpi-label{font-family:var(--mono);font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
+  .kpi-value{font-family:var(--mono);font-size:1.6rem;font-weight:500;line-height:1;letter-spacing:-1px;}
+  .kpi-unit{font-family:var(--mono);font-size:.7rem;color:var(--text-dim);}
+  .c-acc{color:var(--accent)} .c-a2{color:var(--accent2)} .c-a3{color:var(--accent3)}
+  .c-a4{color:var(--accent4)} .c-yw{color:var(--yellow)} .c-gr{color:var(--green)}
+  .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+  .chart-full{grid-column:1/-1;}
+  .chart-card{background:var(--surface);border:1px solid var(--border);padding:1.5rem;}
+  .chart-title{font-family:var(--mono);font-size:.75rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;}
+  .chart-title-accent{width:20px;height:2px;background:var(--accent);display:inline-block;margin-right:8px;vertical-align:middle;}
+  .chart-wrap{position:relative;height:260px;}
+  .chart-wrap-tall{position:relative;height:320px;}
+  .data-section{margin-bottom:1rem;}
+  .section-title{font-family:var(--mono);font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;padding:.6rem 0;margin-bottom:.75rem;border-bottom:1px solid var(--border);}
+  .puls-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  table.data-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.75rem;}
+  table.data-table th{text-align:left;padding:6px 10px;background:var(--surface2);color:var(--text-muted);font-weight:500;border-bottom:1px solid var(--border);font-size:.65rem;text-transform:uppercase;letter-spacing:1px;}
+  table.data-table td{padding:5px 10px;border-bottom:1px solid var(--border);color:var(--text-dim);}
+  table.data-table tr:last-child td{border-bottom:none;}
+  table.data-table td.val{color:var(--text);text-align:right;}
+  table.data-table td.hl{color:var(--accent);font-weight:500;text-align:right;}
+  .box{background:var(--surface);border:1px solid var(--border);padding:1.5rem;}
+  .box+.box{margin-top:1rem;}
+  .report-footer{margin-top:2rem;padding:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;}
+  .footer-text{font-family:var(--mono);font-size:.65rem;color:var(--text-muted);}
+  .compare-files-bar{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent4);padding:1rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+  .compare-label{font-family:var(--mono);font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;}
+  .file-chips{display:flex;gap:.5rem;flex-wrap:wrap;flex:1;}
+  .file-chip{font-family:var(--mono);font-size:.7rem;padding:3px 10px;border-radius:2px;border:1px solid var(--border2);color:var(--text-dim);display:flex;align-items:center;gap:.4rem;}
+  .file-chip.active{border-color:var(--accent4);color:var(--accent4);background:rgba(192,132,252,.05);}
+  .chip-dot{width:6px;height:6px;border-radius:50%;}
+  .add-file-btn{font-family:var(--mono);font-size:.72rem;padding:5px 14px;border:1px dashed var(--border2);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s;border-radius:2px;}
+  .add-file-btn:hover{border-color:var(--accent4);color:var(--accent4);}
+  .compare-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.78rem;}
+  .compare-table th{background:var(--surface2);color:var(--text-muted);padding:8px 12px;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+  .compare-table td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text-dim);white-space:nowrap;}
+  .compare-table tr:hover td{background:var(--surface2);}
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+  @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.charts-grid{grid-template-columns:1fr}.chart-full{grid-column:1}.puls-grid{grid-template-columns:1fr}}
+  @media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.report-header{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
 <div class="grid-bg"></div>
 
-<!-- UPLOAD SCREEN -->
 <div id="upload-screen">
   <div class="upload-hero">
     <div class="logo-mark">CA</div>
     <h1 class="upload-title">Compressor <span>Acoustic</span><br>Report System</h1>
     <p class="upload-sub">// automated analysis from CCS6 export data</p>
-
     <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
       <div class="drop-zone-icon">⬡</div>
       <p><strong>Drop files here</strong> or click to upload</p>
-      <p style="margin-top:0.4rem">Supports single or multiple files for comparison</p>
+      <p style="margin-top:.4rem">Supports single or multiple files for comparison</p>
       <div class="file-types">
         <span class="file-tag">.xlsx</span>
         <span class="file-tag">.xlsm</span>
@@ -515,682 +129,379 @@
   </div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashboard">
   <div class="topbar">
-    <div class="topbar-left">
+    <div style="display:flex;align-items:center;gap:1rem">
       <span class="topbar-logo">CA//SYS</span>
       <div class="topbar-sep"></div>
       <span class="topbar-title" id="topbar-title">—</span>
     </div>
     <div class="topbar-right">
-      <div class="status-pill">
-        <div class="status-dot"></div>
-        STABLE
-      </div>
+      <div class="status-pill"><div class="status-dot"></div>STABLE</div>
       <button class="btn-new" onclick="resetDashboard()">⊕ New Report</button>
     </div>
   </div>
-
-  <div class="content" id="dash-content">
-    <div class="loading"><div class="spinner"></div> Processing data...</div>
-  </div>
+  <div class="content" id="dash-content"></div>
 </div>
 
 <script>
-// ── State ──
-let allFiles = [];
-let chartInstances = {};
-const CHIP_COLORS = ['#00d4ff','#ff6b35','#a3e635','#c084fc','#f59e0b','#f87171'];
+// ─────────────────────────────────────────────
+// FIXED COLUMN INDEX MAP
+// Based on known DB export structure (194 cols)
+// Using index-based access to avoid duplicate-key overwrite
+// ─────────────────────────────────────────────
+const C = {
+  Factory:0, Chamber:1, Refrigerant:2, CompressorType:3, DevOrder:4,
+  Remark:5, Date:6, Time:7, Code:8, NoiseCode:9, NoisePlate:10,
+  Tevap:11, Tcond:12, Rpm:13, Voltage:14, Frequency:15, Operator:16,
+  AdditionalData:17, OrderedBy:18, ShellTempTop:19,
+  Noise50:20, Noise63:21, Noise80:22, Noise100:23, Noise125:24,
+  Noise160:25, Noise200:26, Noise250:27, Noise315:28, Noise400:29,
+  Noise500:30, Noise630:31, Noise800:32, Noise1000:33, Noise1250:34,
+  Noise1600:35, Noise2000:36, Noise2500:37, Noise3150:38, Noise4000:39,
+  Noise5000:40, Noise6300:41, Noise8000:42, Noise10000:43,
+  Noise12k:44, Noise16k:45, Noise20k:46,
+  NoiseTotal:47, Volume:48, Sharpness:49, Interference:50,
+  AirGap:51, OilSplashing:52, Roughness:53,
+  RpmMeasured:54,
+  AccX:55, AccY:56, AccZ:57,
+  VelX:58, VelY:59, VelZ:60,
+  // Vibration 3-axis x:  61–93  (TVi=92, EVi=93)
+  // Vibration 3-axis y:  94–126 (TTi=125, ETi=126)
+  // Pulsation Discharge: 127–157 (31 harmonics), TPi=158, EPi=159
+  // Pulsation Suction:   160–190 (31 harmonics), TGi=191, EGi=192
+  TPi:158, EPi:159,
+  TGi:191, EGi:192,
+  Enabled:193
+};
 
-// ── Drag & Drop ──
+const PULS_DISC_START = 127;
+const PULS_SUCT_START = 160;
+const PULS_LABELS = ['6.3','8','10','12.5','16','20','25','31','40','50','63',
+  '80','100','125','160','200','250','315','400','500','630',
+  '800','1k','1.25k','1.6k','2k','2.5k','3.15k','4k','5k','6.3k'];
+
+const NOISE_COLS = [20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43];
+const NOISE_FREQS = [50,63,80,100,125,160,200,250,315,400,500,630,800,1000,1250,1600,2000,2500,3150,4000,5000,6300,8000,10000];
+const NOISE_LABELS = NOISE_FREQS.map(f => f>=1000?(f/1000)+'k':f+'');
+
+const CHIP = ['#00d4ff','#ff6b35','#a3e635','#c084fc','#f59e0b','#f87171'];
+
+let allFiles = [], charts = {};
+
+// ─── Upload ───
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
-
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('drag-over');
-  handleFiles(Array.from(e.dataTransfer.files));
-});
-fileInput.addEventListener('change', e => handleFiles(Array.from(e.target.files)));
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over');});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');handleFiles(Array.from(e.dataTransfer.files));});
+fileInput.addEventListener('change',e=>handleFiles(Array.from(e.target.files)));
 
 function handleFiles(files) {
-  const validFiles = files.filter(f => f.name.match(/\.(xlsx|xlsm)$/i));
-  if (!validFiles.length) return;
+  const valid = files.filter(f=>f.name.match(/\.(xlsx|xlsm)$/i));
+  if (!valid.length) return;
   allFiles = [];
-  const promises = validFiles.map(f => readFile(f));
-  Promise.all(promises).then(results => {
-    allFiles = results.filter(Boolean);
+  Promise.all(valid.map(readFile)).then(res=>{
+    allFiles = res.filter(Boolean);
     if (allFiles.length) showDashboard();
   });
 }
 
 function readFile(file) {
-  return new Promise(resolve => {
+  return new Promise(resolve=>{
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = e=>{
       try {
-        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const wb = XLSX.read(e.target.result,{type:'array'});
         const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        resolve(parseData(rows, file.name));
-      } catch { resolve(null); }
+        // CRITICAL: use header:1 to get raw array-of-arrays
+        // This preserves duplicate column names (X,Y,Z appear multiple times)
+        const aoa = XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
+        resolve({filename:file.name, aoa});
+      } catch(err){console.error(err);resolve(null);}
     };
     reader.readAsArrayBuffer(file);
   });
 }
 
-function parseData(rows, filename) {
-  // Find header rows (row index 1 = sub-header, row 2+ = data)
-  if (rows.length < 3) return null;
-
-  // Row 0: group headers, Row 1: column names, Row 2+: data
-  const headers = rows[1];
-  const data = rows.slice(2);
-
-  if (!headers || !data.length) return null;
-
-  const parsed = [];
-  for (const row of data) {
-    if (!row.length || !row[0]) continue;
-    const obj = {};
-    headers.forEach((h, i) => { if (h) obj[h] = row[i]; });
-    parsed.push(obj);
-  }
-
-  return { filename, headers, rows: parsed };
-}
-
-function getVal(row, key, fallback = null) {
-  const v = row[key];
-  if (v === undefined || v === null || v === '') return fallback;
+// Get value at column index from data row (default: row index 2 = first data row)
+function cv(aoa, colIdx, rowIdx=2) {
+  const row = aoa[rowIdx];
+  if (!row) return null;
+  const v = row[colIdx];
+  if (v === null || v === '' || v === undefined) return null;
   return v;
 }
 
-function fmt(v, dec = 1) {
-  if (v === null || v === undefined || v === '') return '—';
-  const n = parseFloat(v);
-  return isNaN(n) ? '—' : n.toFixed(dec);
+// Get numeric value
+function nv(aoa, colIdx, rowIdx=2) {
+  const v = cv(aoa, colIdx, rowIdx);
+  if (v === null) return null;
+  const f = parseFloat(v);
+  return isNaN(f) ? null : f;
+}
+
+function fmt(v, dec=1) {
+  if (v === null || v === undefined) return '—';
+  const f = parseFloat(v);
+  return isNaN(f) ? '—' : f.toFixed(dec);
+}
+
+function str(aoa, colIdx) {
+  const v = cv(aoa, colIdx);
+  return (v === null || v === undefined || v === '') ? '—' : String(v);
 }
 
 function showDashboard() {
-  document.getElementById('upload-screen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-
-  // Destroy old charts
-  Object.values(chartInstances).forEach(c => c.destroy());
-  chartInstances = {};
-
-  const primary = allFiles[0];
-  const row = primary.rows[0];
-
+  document.getElementById('upload-screen').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  Object.values(charts).forEach(c=>c.destroy());
+  charts={};
+  const a = allFiles[0].aoa;
   document.getElementById('topbar-title').textContent =
-    `${getVal(row,'Development Order','—')} / ${getVal(row,'Compressor Type','—')}`;
-
+    `${str(a,C.DevOrder)} / ${str(a,C.CompressorType)}`;
   renderDashboard();
 }
 
 function resetDashboard() {
-  document.getElementById('upload-screen').style.display = 'flex';
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('file-input').value = '';
-  allFiles = [];
+  document.getElementById('upload-screen').style.display='flex';
+  document.getElementById('dashboard').style.display='none';
+  fileInput.value=''; allFiles=[];
 }
 
 function renderDashboard() {
-  const primary = allFiles[0];
-  const row = primary.rows[0];
+  const a = allFiles[0].aoa;
   const el = document.getElementById('dash-content');
 
-  // ── Extract values ──
-  const noiseFreqs = [50,63,80,100,125,160,200,250,315,400,500,630,800,1000,1250,1600,2000,2500,3150,4000,5000,6300,8000,10000];
-  const noiseLabels = noiseFreqs.map(f => f >= 1000 ? (f/1000)+'k' : f+'');
-  const noiseKeys = noiseFreqs.map(f => f >= 1000 ? `Noise${f/1000}k` : `Noise${f}`);
+  const noiseVals = NOISE_COLS.map(c=>nv(a,c));
+  const noiseTotal = nv(a,C.NoiseTotal);
+  const accX=nv(a,C.AccX), accY=nv(a,C.AccY), accZ=nv(a,C.AccZ);
+  const velX=nv(a,C.VelX), velY=nv(a,C.VelY), velZ=nv(a,C.VelZ);
+  const tPi=nv(a,C.TPi), tGi=nv(a,C.TGi);
+  const discVals = Array.from({length:31},(_,i)=>nv(a,PULS_DISC_START+i)??0);
+  const suctVals = Array.from({length:31},(_,i)=>nv(a,PULS_SUCT_START+i)??0);
 
-  // Fix: check actual keys
-  const noiseVals = noiseFreqs.map((f, i) => {
-    const key = `Noise${f}`;
-    const key2 = `Noise${f/1000}k`;
-    const v = parseFloat(row[key] ?? row[key2]);
-    return isNaN(v) ? null : v;
-  });
-
-  const totalNoise = parseFloat(getVal(row, 'Noise Total [dB]'));
-
-  const accX = parseFloat(getVal(row,'X',0));
-  const accY = parseFloat(getVal(row,'Y',0));
-  const accZ = parseFloat(getVal(row,'Z',0));
-  const velX = parseFloat(getVal(row,'X',0)); // second X (velocity)
-  const velY = parseFloat(getVal(row,'Y',0));
-  const velZ = parseFloat(getVal(row,'Z',0));
-
-  // Pulsation harmonics (discharge = cols after "Refrigerant Pulse Discharge")
-  // They appear as '6,3', '8', '10', ... up to '6300', then TPi/EPi etc.
-  const pulsFreqLabels = ['6.3','8','10','12.5','16','20','25','31','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1k','1.25k','1.6k','2k','2.5k','3.15k','4k','5k','6.3k'];
-
-  // Find discharge and suction pulse columns from header
-  const headers = primary.headers;
-  let discStart = -1, suctStart = -1;
-  for (let i = 0; i < rows_raw_len(primary); i++) {}
-
-  // Use known structure: Discharge cols start around index 131, Suction around 163
-  // Parse from row values with numeric-ish keys
-  const allKeys = Object.keys(row);
-
-  function getPulsVals(rowObj, startHint) {
-    // Collect all values from columns that look like frequency labels
-    const freqKeys = ['6,3','8','10','12,5','16','20','25','31','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300'];
-    // We may have duplicates (discharge vs suction both use same freq labels)
-    // Count occurrences and use offset
-    const occMap = {};
-    const vals = [];
-    allKeys.forEach(k => {
-      if (freqKeys.includes(String(k))) {
-        occMap[k] = (occMap[k] || 0) + 1;
-      }
-    });
-    return [];
-  }
-
-  // Direct column scan for pulsation
-  const rowKeys = Object.keys(row);
-  const pulsDisc = [], pulsSuct = [];
-
-  // Identify by known total columns TPi, EPi, TGi, EGi
-  // Discharge: 31 freq cols + TPi + EPi
-  // Suction:   31 freq cols + TGi + EGi
-  let scanState = 'pre'; // pre -> disc -> post_disc -> suct
-  let discCount = 0, suctCount = 0;
-  const pulsFreqKeys = ['6,3','8','10','12,5','16','20','25','31','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300'];
-
-  // Simpler: scan all keys linearly and pick groups
-  let groups = [];
-  let curGroup = [];
-  for (let ki = 0; ki < rowKeys.length; ki++) {
-    const k = rowKeys[ki];
-    if (pulsFreqKeys.includes(String(k))) {
-      curGroup.push(parseFloat(row[k]) || 0);
-    } else {
-      if (curGroup.length > 20) { groups.push([...curGroup]); curGroup = []; }
-      else curGroup = [];
-    }
-  }
-  if (curGroup.length > 20) groups.push(curGroup);
-
-  const discVals = groups[0] || Array(31).fill(0);
-  const suctVals = groups[1] || Array(31).fill(0);
-
-  const discTotal = parseFloat(getVal(row,'TPi')) || parseFloat(getVal(row,'EPi')) || null;
-  const suctTotal = parseFloat(getVal(row,'TGi')) || parseFloat(getVal(row,'EGi')) || null;
-
-  // Vibration 3-axis
-  const vibKeys = ['6,3','8','10','12,5','16','20','25','31','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300'];
-  // TVi group
-  const vibVals_x = [], vibVals_y = [], vibVals_z = [];
-
-  // ── Multi-file compare ──
-  const compareBar = allFiles.length > 1 ? `
+  const compareBar = allFiles.length>1 ? `
     <div class="compare-files-bar">
       <span class="compare-label">Comparing</span>
       <div class="file-chips">
-        ${allFiles.map((f,i) => `
-          <div class="file-chip active">
-            <span class="chip-dot" style="background:${CHIP_COLORS[i]}"></span>
-            ${f.filename.replace(/\.(xlsx|xlsm)$/i,'')}
-          </div>`).join('')}
+        ${allFiles.map((f,i)=>`<div class="file-chip active"><span class="chip-dot" style="background:${CHIP[i]}"></span>${f.filename.replace(/\.(xlsx|xlsm)$/i,'')}</div>`).join('')}
       </div>
       <label class="add-file-btn" onclick="document.getElementById('file-input').click()">+ Add File</label>
     </div>` : '';
 
-  // ── Build HTML ──
-  el.innerHTML = `
-    ${compareBar}
-
-    <!-- HEADER -->
+  el.innerHTML = `${compareBar}
     <div class="report-header">
       <div>
-        <div class="report-id">
-          <span>${getVal(row,'Development Order','N/A')}</span> —
-          ${getVal(row,'Compressor Type','N/A')}
-        </div>
+        <div class="report-id"><span>${str(a,C.DevOrder)}</span> — ${str(a,C.CompressorType)}</div>
         <div class="report-meta">
-          <div class="meta-item">
-            <span class="meta-label">Sample ID</span>
-            <span class="meta-value">${getVal(row,'Code','—')}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Operator</span>
-            <span class="meta-value">${getVal(row,'Operator','—')}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Date</span>
-            <span class="meta-value">${getVal(row,'Date','—')}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Time</span>
-            <span class="meta-value">${getVal(row,'Time','—')}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Refrigerant</span>
-            <span class="meta-value">${getVal(row,'Refrigerant','—')}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Factory</span>
-            <span class="meta-value">${getVal(row,'Factory','—')} / ${getVal(row,'Chamber','—')}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Remark</span>
-            <span class="meta-value" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${getVal(row,'Remark','—')}</span>
-          </div>
+          ${mi('Sample ID', str(a,C.Code))}
+          ${mi('Operator', str(a,C.Operator))}
+          ${mi('Date', str(a,C.Date))}
+          ${mi('Time', str(a,C.Time))}
+          ${mi('Refrigerant', str(a,C.Refrigerant))}
+          ${mi('Factory / Chamber', str(a,C.Factory)+' / '+str(a,C.Chamber))}
+          ${mi('Noise Code', str(a,C.NoiseCode))}
         </div>
       </div>
       <div class="test-conditions">
-        <div class="condition-row">
-          <span class="cond-label">T_evap</span>
-          <span class="cond-value">${fmt(getVal(row,'Evaporation Temp [°C]'))} °C</span>
-        </div>
-        <div class="condition-row">
-          <span class="cond-label">T_cond</span>
-          <span class="cond-value">${fmt(getVal(row,'Condensation Temp [°C]'))} °C</span>
-        </div>
-        <div class="condition-row">
-          <span class="cond-label">Speed</span>
-          <span class="cond-value">${fmt(getVal(row,'Rpm'),0)} rpm</span>
-        </div>
-        <div class="condition-row">
-          <span class="cond-label">Voltage</span>
-          <span class="cond-value">${fmt(getVal(row,'Voltage [V]'),0)} V / ${fmt(getVal(row,'Frequency [Hz]'),0)} Hz</span>
-        </div>
-        <div class="condition-row">
-          <span class="cond-label">T_shell top</span>
-          <span class="cond-value">${fmt(getVal(row,'Shell Temperature Top'))} °C</span>
-        </div>
-        <div class="condition-row">
-          <span class="cond-label">Speed meas.</span>
-          <span class="cond-value">${fmt(getVal(row,'Rpm Measured'),0)} rpm</span>
-        </div>
+        ${cr('T_evap', fmt(nv(a,C.Tevap),1)+' °C')}
+        ${cr('T_cond', fmt(nv(a,C.Tcond),1)+' °C')}
+        ${cr('Speed (set)', fmt(nv(a,C.Rpm),0)+' rpm')}
+        ${cr('Speed (meas.)', fmt(nv(a,C.RpmMeasured),0)+' rpm')}
+        ${cr('Voltage / Freq', fmt(nv(a,C.Voltage),0)+'V / '+fmt(nv(a,C.Frequency),0)+'Hz')}
+        ${cr('T_shell top', fmt(nv(a,C.ShellTempTop),1)+' °C')}
       </div>
     </div>
 
-    <!-- KPIs -->
     <div class="kpi-grid">
-      <div class="kpi-card">
-        <span class="kpi-label">Noise Total</span>
-        <span class="kpi-value kpi-accent">${fmt(totalNoise, 1)}</span>
-        <span class="kpi-unit">dB(A)</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-label">Pulsation Discharge</span>
-        <span class="kpi-value kpi-accent2">${discTotal ? fmt(discTotal,1) : fmt(getVal(row,'EPi'),3)}</span>
-        <span class="kpi-unit">mbar (total)</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-label">Pulsation Suction</span>
-        <span class="kpi-value kpi-accent3">${suctTotal ? fmt(suctTotal,1) : fmt(getVal(row,'EGi'),3)}</span>
-        <span class="kpi-unit">mbar (total)</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-label">Acceleration Z</span>
-        <span class="kpi-value kpi-accent4">${fmt(accZ, 2)}</span>
-        <span class="kpi-unit">m/s²</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-label">Volume</span>
-        <span class="kpi-value kpi-yellow">${fmt(getVal(row,'Volume'))}</span>
-        <span class="kpi-unit">sone</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-label">Sharpness</span>
-        <span class="kpi-value" style="color:#94a3b8">${fmt(getVal(row,'Sharpness'))}</span>
-        <span class="kpi-unit">acum</span>
-      </div>
+      <div class="kpi-card"><span class="kpi-label">Noise Total</span><span class="kpi-value c-acc">${fmt(noiseTotal,1)}</span><span class="kpi-unit">dB(A)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Puls. Discharge</span><span class="kpi-value c-a2">${fmt(tPi,2)}</span><span class="kpi-unit">dB/20µPa</span></div>
+      <div class="kpi-card"><span class="kpi-label">Puls. Suction</span><span class="kpi-value c-a3">${fmt(tGi,2)}</span><span class="kpi-unit">dB/20µPa</span></div>
+      <div class="kpi-card"><span class="kpi-label">Acceleration Z</span><span class="kpi-value c-a4">${fmt(accZ,3)}</span><span class="kpi-unit">m/s²</span></div>
+      <div class="kpi-card"><span class="kpi-label">Velocity Z</span><span class="kpi-value c-yw">${fmt(velZ,5)}</span><span class="kpi-unit">cm/s</span></div>
+      <div class="kpi-card"><span class="kpi-label">Shell Temp Top</span><span class="kpi-value c-gr">${fmt(nv(a,C.ShellTempTop),1)}</span><span class="kpi-unit">°C</span></div>
     </div>
 
-    <!-- CHARTS ROW 1 -->
     <div class="charts-grid">
       <div class="chart-card chart-full">
-        <div class="chart-title">
-          <span><span class="chart-title-accent"></span>1/3-OCTAVE NOISE SPECTRUM</span>
-          <span style="color:var(--text-muted);font-size:0.65rem">A-weighted [dB(A)]</span>
-        </div>
-        <div class="chart-wrap-tall">
-          <canvas id="chart-noise"></canvas>
-        </div>
+        <div class="chart-title"><span><span class="chart-title-accent"></span>1/3-OCTAVE NOISE SPECTRUM</span><span style="color:var(--text-muted);font-size:.65rem">A-weighted [dB(A)]</span></div>
+        <div class="chart-wrap-tall"><canvas id="ch-noise"></canvas></div>
       </div>
     </div>
-
     <div class="charts-grid">
       <div class="chart-card">
-        <div class="chart-title">
-          <span><span class="chart-title-accent" style="background:var(--accent2)"></span>PULSATION — DISCHARGE</span>
-          <span style="color:var(--text-muted);font-size:0.65rem">mbar RMS</span>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="chart-disc"></canvas>
-        </div>
+        <div class="chart-title"><span><span class="chart-title-accent" style="background:var(--accent2)"></span>PULSATION — DISCHARGE</span><span style="color:var(--text-muted);font-size:.65rem">Total: ${fmt(tPi,2)} dB/20µPa</span></div>
+        <div class="chart-wrap"><canvas id="ch-disc"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">
-          <span><span class="chart-title-accent" style="background:var(--accent3)"></span>PULSATION — SUCTION</span>
-          <span style="color:var(--text-muted);font-size:0.65rem">mbar RMS</span>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="chart-suct"></canvas>
-        </div>
+        <div class="chart-title"><span><span class="chart-title-accent" style="background:var(--accent3)"></span>PULSATION — SUCTION</span><span style="color:var(--text-muted);font-size:.65rem">Total: ${fmt(tGi,2)} dB/20µPa</span></div>
+        <div class="chart-wrap"><canvas id="ch-suct"></canvas></div>
       </div>
     </div>
-
     <div class="charts-grid">
       <div class="chart-card">
-        <div class="chart-title">
-          <span><span class="chart-title-accent" style="background:var(--accent4)"></span>VIBRATION — ACCELERATION</span>
-          <span style="color:var(--text-muted);font-size:0.65rem">m/s²</span>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="chart-acc"></canvas>
-        </div>
+        <div class="chart-title"><span><span class="chart-title-accent" style="background:var(--accent4)"></span>VIBRATION — ACCELERATION</span><span style="color:var(--text-muted);font-size:.65rem">m/s²</span></div>
+        <div class="chart-wrap"><canvas id="ch-acc"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">
-          <span><span class="chart-title-accent" style="background:var(--yellow)"></span>VIBRATION — VELOCITY</span>
-          <span style="color:var(--text-muted);font-size:0.65rem">cm/s</span>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="chart-vel"></canvas>
-        </div>
+        <div class="chart-title"><span><span class="chart-title-accent" style="background:var(--yellow)"></span>VIBRATION — VELOCITY</span><span style="color:var(--text-muted);font-size:.65rem">cm/s</span></div>
+        <div class="chart-wrap"><canvas id="ch-vel"></canvas></div>
       </div>
     </div>
 
-    <!-- DATA TABLES -->
     <div class="data-section">
       <div class="section-title">// detailed measurements</div>
       <div class="puls-grid">
-        <div class="noise-wrap">
-          <div class="chart-title" style="margin-bottom:0.75rem">
-            <span><span class="chart-title-accent"></span>NOISE SPECTRUM — FULL TABLE</span>
-          </div>
+        <div class="box">
+          <div class="chart-title" style="margin-bottom:.75rem"><span><span class="chart-title-accent"></span>NOISE SPECTRUM — FULL TABLE</span></div>
           <table class="data-table">
-            <tr><th>Freq (Hz)</th><th>dB(A)</th></tr>
-            ${noiseFreqs.map((f, i) => `
-              <tr>
-                <td>${f >= 1000 ? (f/1000)+'k' : f} Hz</td>
-                <td class="val ${noiseVals[i] && noiseVals[i] > 45 ? 'highlight' : ''}">${fmt(noiseVals[i])}</td>
-              </tr>`).join('')}
-            <tr style="border-top:1px solid var(--border2)">
-              <td style="color:var(--text)"><strong>TOTAL</strong></td>
-              <td class="val highlight">${fmt(totalNoise)}</td>
-            </tr>
+            <tr><th>Freq</th><th style="text-align:right">dB(A)</th></tr>
+            ${NOISE_FREQS.map((f,i)=>`<tr><td>${f>=1000?(f/1000)+'k':f} Hz</td><td class="${noiseVals[i]!==null&&noiseVals[i]>45?'hl':'val'}">${fmt(noiseVals[i])}</td></tr>`).join('')}
+            <tr style="border-top:1px solid var(--border2)"><td style="color:var(--text);font-weight:500">TOTAL</td><td class="hl">${fmt(noiseTotal)}</td></tr>
           </table>
         </div>
-
         <div>
-          <div class="noise-wrap" style="margin-bottom:1rem">
-            <div class="chart-title" style="margin-bottom:0.75rem">
-              <span><span class="chart-title-accent" style="background:var(--accent4)"></span>VIBRATION SUMMARY</span>
-            </div>
+          <div class="box">
+            <div class="chart-title" style="margin-bottom:.75rem"><span><span class="chart-title-accent" style="background:var(--accent4)"></span>VIBRATION SUMMARY</span></div>
             <table class="data-table">
-              <tr><th>Parameter</th><th>X</th><th>Y</th><th>Z</th></tr>
-              <tr>
-                <td>Acceleration [m/s²]</td>
-                <td class="val">${fmt(accX, 3)}</td>
-                <td class="val">${fmt(accY, 3)}</td>
-                <td class="val highlight">${fmt(accZ, 3)}</td>
-              </tr>
-              <tr>
-                <td>Velocity [cm/s]</td>
-                <td class="val">${fmt(parseFloat(getVal(row,'X',0)), 4)}</td>
-                <td class="val">${fmt(parseFloat(getVal(row,'Y',0)), 4)}</td>
-                <td class="val">${fmt(parseFloat(getVal(row,'Z',0)), 4)}</td>
-              </tr>
+              <tr><th>Parameter</th><th style="text-align:right">X</th><th style="text-align:right">Y</th><th style="text-align:right">Z</th></tr>
+              <tr><td>Acceleration [m/s²]</td><td class="val">${fmt(accX,4)}</td><td class="val">${fmt(accY,4)}</td><td class="hl">${fmt(accZ,4)}</td></tr>
+              <tr><td>Velocity [cm/s]</td><td class="val">${fmt(velX,5)}</td><td class="val">${fmt(velY,5)}</td><td class="hl">${fmt(velZ,5)}</td></tr>
             </table>
           </div>
-
-          <div class="noise-wrap">
-            <div class="chart-title" style="margin-bottom:0.75rem">
-              <span><span class="chart-title-accent" style="background:var(--accent2)"></span>PULSATION TOTALS</span>
-            </div>
+          <div class="box">
+            <div class="chart-title" style="margin-bottom:.75rem"><span><span class="chart-title-accent" style="background:var(--accent2)"></span>PULSATION TOTALS</span></div>
             <table class="data-table">
-              <tr><th>Channel</th><th>Total [mbar]</th></tr>
-              <tr>
-                <td>Discharge (EPi)</td>
-                <td class="val highlight" style="color:var(--accent2)">${fmt(getVal(row,'EPi'),4)}</td>
-              </tr>
-              <tr>
-                <td>Suction (EGi)</td>
-                <td class="val highlight" style="color:var(--accent3)">${fmt(getVal(row,'EGi'),4)}</td>
-              </tr>
+              <tr><th>Channel</th><th style="text-align:right">Total [dB/20µPa]</th></tr>
+              <tr><td>Discharge (TPi)</td><td class="hl" style="color:var(--accent2)">${fmt(tPi,3)}</td></tr>
+              <tr><td>Suction (TGi)</td><td class="hl" style="color:var(--accent3)">${fmt(tGi,3)}</td></tr>
             </table>
           </div>
-
-          <div class="noise-wrap" style="margin-top:1rem">
-            <div class="chart-title" style="margin-bottom:0.75rem">
-              <span><span class="chart-title-accent" style="background:var(--yellow)"></span>PSYCHOACOUSTICS</span>
-            </div>
+          <div class="box">
+            <div class="chart-title" style="margin-bottom:.75rem"><span><span class="chart-title-accent" style="background:var(--yellow)"></span>PSYCHOACOUSTICS</span></div>
             <table class="data-table">
-              <tr><th>Metric</th><th>Value</th></tr>
-              <tr><td>Volume</td><td class="val">${fmt(getVal(row,'Volume'))} sone</td></tr>
-              <tr><td>Sharpness</td><td class="val">${fmt(getVal(row,'Sharpness'))} acum</td></tr>
-              <tr><td>Roughness</td><td class="val">${fmt(getVal(row,'Roughness'))}</td></tr>
-              <tr><td>Interference</td><td class="val">${fmt(getVal(row,'Interference'))}</td></tr>
-              <tr><td>Air Gap</td><td class="val">${fmt(getVal(row,'Air Gap Value'))}</td></tr>
-              <tr><td>Oil Splashing</td><td class="val">${fmt(getVal(row,'Oil Splashing Value'))}</td></tr>
+              <tr><th>Metric</th><th style="text-align:right">Value</th></tr>
+              <tr><td>Volume</td><td class="val">${fmt(nv(a,C.Volume))} sone</td></tr>
+              <tr><td>Sharpness</td><td class="val">${fmt(nv(a,C.Sharpness))} acum</td></tr>
+              <tr><td>Roughness</td><td class="val">${fmt(nv(a,C.Roughness))}</td></tr>
+              <tr><td>Interference</td><td class="val">${fmt(nv(a,C.Interference))}</td></tr>
+              <tr><td>Air Gap Value</td><td class="val">${fmt(nv(a,C.AirGap))}</td></tr>
+              <tr><td>Oil Splashing</td><td class="val">${fmt(nv(a,C.OilSplashing))}</td></tr>
+              <tr><td>Noise Plate</td><td class="val">${str(a,C.NoisePlate)} mm</td></tr>
             </table>
           </div>
         </div>
       </div>
     </div>
 
-    ${allFiles.length > 1 ? renderCompareTable() : ''}
+    ${allFiles.length>1?renderCompare():''}
 
     <div class="report-footer">
       <span class="footer-text">COMPRESSOR ACOUSTIC REPORT SYSTEM // Generated ${new Date().toLocaleString()}</span>
       <span class="footer-text">${allFiles.length} file(s) loaded</span>
-    </div>
-  `;
+    </div>`;
 
-  // ── Render charts ──
-  const chartDefaults = {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: {
-      backgroundColor: '#181d23', borderColor: '#2a3340', borderWidth: 1,
-      titleColor: '#64748b', bodyColor: '#e2e8f0',
-      titleFont: { family: 'IBM Plex Mono', size: 11 },
-      bodyFont: { family: 'IBM Plex Mono', size: 11 },
-    }},
-    scales: {
-      x: { ticks: { color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } },
-           grid: { color: '#1e252e' }, border: { color: '#1e252e' } },
-      y: { ticks: { color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } },
-           grid: { color: '#1e252e' }, border: { color: '#1e252e' } }
+  // ─── Charts ───
+  const CD = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:allFiles.length>1,labels:{color:'#64748b',font:{family:'IBM Plex Mono',size:10},boxWidth:10}},
+      tooltip:{backgroundColor:'#181d23',borderColor:'#2a3340',borderWidth:1,
+        titleColor:'#64748b',bodyColor:'#e2e8f0',
+        titleFont:{family:'IBM Plex Mono',size:11},bodyFont:{family:'IBM Plex Mono',size:11}}
+    },
+    scales:{
+      x:{ticks:{color:'#64748b',font:{family:'IBM Plex Mono',size:10},maxRotation:45},grid:{color:'#1e252e'},border:{color:'#1e252e'}},
+      y:{ticks:{color:'#64748b',font:{family:'IBM Plex Mono',size:10}},grid:{color:'#1e252e'},border:{color:'#1e252e'}}
     }
   };
 
-  // Noise chart — all files overlaid
-  const noiseDatasets = allFiles.map((f, fi) => {
-    const r = f.rows[0];
-    const vals = noiseFreqs.map(freq => {
-      const k1 = `Noise${freq}`;
-      const k2 = `Noise${freq/1000}k`;
-      const v = parseFloat(r[k1] ?? r[k2]);
-      return isNaN(v) ? null : v;
-    });
-    return {
-      label: f.filename,
-      data: vals,
-      borderColor: CHIP_COLORS[fi],
-      backgroundColor: CHIP_COLORS[fi] + '18',
-      borderWidth: fi === 0 ? 2 : 1.5,
-      pointRadius: 3,
-      pointHoverRadius: 5,
-      tension: 0.3,
-      fill: fi === 0,
-    };
+  // Noise — line, all files
+  charts.noise = new Chart(document.getElementById('ch-noise'),{
+    type:'line',
+    data:{labels:NOISE_LABELS, datasets:allFiles.map((f,fi)=>({
+      label:f.filename.replace(/\.(xlsx|xlsm)$/i,''),
+      data:NOISE_COLS.map(c=>nv(f.aoa,c)),
+      borderColor:CHIP[fi], backgroundColor:CHIP[fi]+'18',
+      borderWidth:fi===0?2:1.5, pointRadius:3, pointHoverRadius:5,
+      tension:0.3, fill:fi===0, spanGaps:true
+    }))},
+    options:CD
   });
 
-  chartInstances['noise'] = new Chart(document.getElementById('chart-noise'), {
-    type: 'line',
-    data: { labels: noiseLabels, datasets: noiseDatasets },
-    options: {
-      ...chartDefaults,
-      plugins: { ...chartDefaults.plugins,
-        legend: { display: allFiles.length > 1,
-          labels: { color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 12 }
-        }
-      }
-    }
+  // Discharge — bar
+  charts.disc = new Chart(document.getElementById('ch-disc'),{
+    type:'bar',
+    data:{labels:PULS_LABELS, datasets:allFiles.map((f,fi)=>({
+      label:f.filename.replace(/\.(xlsx|xlsm)$/i,''),
+      data:Array.from({length:31},(_,i)=>nv(f.aoa,PULS_DISC_START+i)??0),
+      backgroundColor:CHIP[fi]+'aa', borderColor:CHIP[fi], borderWidth:1
+    }))},
+    options:CD
   });
 
-  // Pulsation discharge
-  const discDatasets = allFiles.map((f, fi) => {
-    const r = f.rows[0];
-    const rKeys = Object.keys(r);
-    const gps = extractPulsGroups(r, rKeys);
-    return {
-      label: f.filename,
-      data: gps[0] || Array(31).fill(0),
-      backgroundColor: CHIP_COLORS[fi] + '99',
-      borderColor: CHIP_COLORS[fi],
-      borderWidth: 1,
-    };
+  // Suction — bar
+  charts.suct = new Chart(document.getElementById('ch-suct'),{
+    type:'bar',
+    data:{labels:PULS_LABELS, datasets:allFiles.map((f,fi)=>({
+      label:f.filename.replace(/\.(xlsx|xlsm)$/i,''),
+      data:Array.from({length:31},(_,i)=>nv(f.aoa,PULS_SUCT_START+i)??0),
+      backgroundColor:CHIP[fi]+'aa', borderColor:CHIP[fi], borderWidth:1
+    }))},
+    options:CD
   });
 
-  chartInstances['disc'] = new Chart(document.getElementById('chart-disc'), {
-    type: 'bar',
-    data: { labels: pulsFreqLabels, datasets: discDatasets },
-    options: {
-      ...chartDefaults,
-      plugins: { ...chartDefaults.plugins, legend: { display: allFiles.length > 1,
-        labels: { color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 10 }
-      }},
-      scales: { ...chartDefaults.scales, x: { ...chartDefaults.scales.x, ticks: { ...chartDefaults.scales.x.ticks, maxRotation: 45 } } }
-    }
+  // Acceleration — bar
+  charts.acc = new Chart(document.getElementById('ch-acc'),{
+    type:'bar',
+    data:{labels:['X-axis','Y-axis','Z-axis'], datasets:allFiles.map((f,fi)=>({
+      label:f.filename.replace(/\.(xlsx|xlsm)$/i,''),
+      data:[nv(f.aoa,C.AccX)||0, nv(f.aoa,C.AccY)||0, nv(f.aoa,C.AccZ)||0],
+      backgroundColor:['#64748b55','#64748b55',CHIP[fi]],
+      borderColor:CHIP[fi], borderWidth:1
+    }))},
+    options:CD
   });
 
-  // Pulsation suction
-  const suctDatasets = allFiles.map((f, fi) => {
-    const r = f.rows[0];
-    const rKeys = Object.keys(r);
-    const gps = extractPulsGroups(r, rKeys);
-    return {
-      label: f.filename,
-      data: gps[1] || Array(31).fill(0),
-      backgroundColor: CHIP_COLORS[fi] + '99',
-      borderColor: CHIP_COLORS[fi],
-      borderWidth: 1,
-    };
-  });
-
-  chartInstances['suct'] = new Chart(document.getElementById('chart-suct'), {
-    type: 'bar',
-    data: { labels: pulsFreqLabels, datasets: suctDatasets },
-    options: {
-      ...chartDefaults,
-      plugins: { ...chartDefaults.plugins, legend: { display: allFiles.length > 1,
-        labels: { color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 10 }
-      }},
-      scales: { ...chartDefaults.scales, x: { ...chartDefaults.scales.x, ticks: { ...chartDefaults.scales.x.ticks, maxRotation: 45 } } }
-    }
-  });
-
-  // Vibration acceleration bar
-  chartInstances['acc'] = new Chart(document.getElementById('chart-acc'), {
-    type: 'bar',
-    data: {
-      labels: ['X-axis', 'Y-axis', 'Z-axis'],
-      datasets: allFiles.map((f, fi) => ({
-        label: f.filename,
-        data: [
-          parseFloat(getVal(f.rows[0],'X')) || 0,
-          parseFloat(getVal(f.rows[0],'Y')) || 0,
-          parseFloat(getVal(f.rows[0],'Z')) || 0,
-        ],
-        backgroundColor: [CHIP_COLORS[fi]+'80', CHIP_COLORS[fi]+'80', CHIP_COLORS[fi]],
-        borderColor: CHIP_COLORS[fi],
-        borderWidth: 1,
-      }))
-    },
-    options: { ...chartDefaults }
-  });
-
-  // Vibration velocity bar
-  chartInstances['vel'] = new Chart(document.getElementById('chart-vel'), {
-    type: 'bar',
-    data: {
-      labels: ['X-axis', 'Y-axis', 'Z-axis'],
-      datasets: allFiles.map((f, fi) => {
-        const r = f.rows[0];
-        const velKeys = Object.keys(r).filter(k => k === 'X' || k === 'Y' || k === 'Z');
-        // Second occurrence of X/Y/Z is velocity
-        const vals2 = extractSecondXYZ(r);
-        return {
-          label: f.filename,
-          data: vals2,
-          backgroundColor: [CHIP_COLORS[fi]+'50', CHIP_COLORS[fi]+'50', CHIP_COLORS[fi]+'cc'],
-          borderColor: CHIP_COLORS[fi],
-          borderWidth: 1,
-        };
-      })
-    },
-    options: { ...chartDefaults }
+  // Velocity — bar
+  charts.vel = new Chart(document.getElementById('ch-vel'),{
+    type:'bar',
+    data:{labels:['X-axis','Y-axis','Z-axis'], datasets:allFiles.map((f,fi)=>({
+      label:f.filename.replace(/\.(xlsx|xlsm)$/i,''),
+      data:[nv(f.aoa,C.VelX)||0, nv(f.aoa,C.VelY)||0, nv(f.aoa,C.VelZ)||0],
+      backgroundColor:['#64748b55','#64748b55',CHIP[fi]+'cc'],
+      borderColor:CHIP[fi], borderWidth:1
+    }))},
+    options:CD
   });
 }
 
-function extractPulsGroups(row, keys) {
-  const freqKeys = ['6,3','8','10','12,5','16','20','25','31','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300'];
-  let groups = [], curGroup = [];
-  for (const k of keys) {
-    if (freqKeys.includes(String(k))) {
-      curGroup.push(parseFloat(row[k]) || 0);
-    } else {
-      if (curGroup.length > 20) { groups.push([...curGroup]); curGroup = []; }
-      else curGroup = [];
-    }
-  }
-  if (curGroup.length > 20) groups.push(curGroup);
-  return groups;
-}
+// helpers
+function mi(label,value){return `<div class="meta-item"><span class="meta-label">${label}</span><span class="meta-value">${value||'—'}</span></div>`;}
+function cr(label,value){return `<div class="condition-row"><span class="cond-label">${label}</span><span class="cond-value">${value}</span></div>`;}
 
-function extractSecondXYZ(row) {
-  // In xlsx parsed object, duplicate keys get overwritten — we need raw sheet
-  // Fallback: use X/Y/Z values as velocity (they may be velocity depending on parsing)
-  return [
-    parseFloat(row['X']) || 0,
-    parseFloat(row['Y']) || 0,
-    parseFloat(row['Z']) || 0,
+function renderCompare(){
+  const params=[
+    {label:'Noise Total [dB(A)]', fn:a=>nv(a,C.NoiseTotal), dec:2},
+    {label:'Pulsation Discharge [dB]', fn:a=>nv(a,C.TPi), dec:3},
+    {label:'Pulsation Suction [dB]', fn:a=>nv(a,C.TGi), dec:3},
+    {label:'Acceleration X [m/s²]', fn:a=>nv(a,C.AccX), dec:4},
+    {label:'Acceleration Y [m/s²]', fn:a=>nv(a,C.AccY), dec:4},
+    {label:'Acceleration Z [m/s²]', fn:a=>nv(a,C.AccZ), dec:4},
+    {label:'Velocity X [cm/s]', fn:a=>nv(a,C.VelX), dec:5},
+    {label:'Velocity Y [cm/s]', fn:a=>nv(a,C.VelY), dec:5},
+    {label:'Velocity Z [cm/s]', fn:a=>nv(a,C.VelZ), dec:5},
+    {label:'Shell Temp Top [°C]', fn:a=>nv(a,C.ShellTempTop), dec:2},
+    {label:'Speed Measured [rpm]', fn:a=>nv(a,C.RpmMeasured), dec:0},
   ];
-}
-
-function rows_raw_len(f) { return f.rows.length; }
-
-function renderCompareTable() {
-  const keys = ['Noise Total [dB]','EPi','EGi','X','Y','Z','Volume','Sharpness'];
-  const labels = ['Noise Total (dB)', 'Puls. Discharge', 'Puls. Suction', 'Acc. X (m/s²)', 'Acc. Y (m/s²)', 'Acc. Z (m/s²)', 'Volume (sone)', 'Sharpness (acum)'];
-
-  return `
-    <div class="compare-section">
-      <div class="section-title">// multi-file comparison</div>
-      <div style="overflow-x:auto">
-        <table class="compare-table">
-          <thead>
-            <tr>
-              <th>Parameter</th>
-              ${allFiles.map(f => `<th>${f.filename.replace(/\.(xlsx|xlsm)$/i,'')}</th>`).join('')}
-            </tr>
-          </thead>
-          <tbody>
-            ${keys.map((k, i) => `
-              <tr>
-                <td style="color:var(--text)">${labels[i]}</td>
-                ${allFiles.map((f, fi) => {
-                  const v = parseFloat(getVal(f.rows[0], k));
-                  return `<td style="color:${CHIP_COLORS[fi]}">${fmt(v, 3)}</td>`;
-                }).join('')}
-              </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>`;
+  return `<div class="data-section"><div class="section-title">// multi-file comparison</div>
+    <div style="overflow-x:auto;background:var(--surface);border:1px solid var(--border);padding:1.5rem">
+      <table class="compare-table">
+        <thead><tr><th>Parameter</th>${allFiles.map((f,i)=>`<th style="color:${CHIP[i]}">${f.filename.replace(/\.(xlsx|xlsm)$/i,'')}</th>`).join('')}</tr></thead>
+        <tbody>${params.map(p=>`<tr><td style="color:var(--text)">${p.label}</td>${allFiles.map((f,fi)=>`<td style="color:${CHIP[fi]}">${fmt(p.fn(f.aoa),p.dec)}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>
+    </div></div>`;
 }
 </script>
 </body>
